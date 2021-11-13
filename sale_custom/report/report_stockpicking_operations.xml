@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <template id="report_picking" inherit_id="stock.report_picking">
+            <xpath expr="//span[@t-field='ml.product_uom_qty']" position="replace">
+                <span t-if="o.state != 'done'" t-field="ml.qty_done"/>
+            </xpath>
+        </template>
+    </data>
+</odoo>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_payment_cashend_document">
+            <t t-call="web.internal_layout">
+                <div class="page">
+                    <div id="informations" class="row mt32 mb32">
+                        <div class="col-auto col-3 mw-100 mb-2" name="dates">
+                            <strong>Date From:</strong>
+                            <p class="m-0" t-field="o.date_from"/>
+                        </div>
+                        <div class="col-auto col-3 mw-100 mb-2" name="dates">
+                            <strong>Date To:</strong>
+                            <p class="m-0" t-field="o.date_to"/>
+                        </div>
+                        <div class="col-auto col-3 mw-100 mb-2" name="users">
+                            <strong>User:</strong>
+                            <p class="m-0" t-field="o.user_id"/>
+                        </div>
+                    </div>
+                </div>
+
+                <t t-foreach="journals" t-as="journal">
+                    <t t-set='datas' t-value="journals.get(journal)"/>
+                    <br/>
+                    <strong><span t-esc="datas[3]"/></strong>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th name="th_date" class="text-center"><span>FECHA</span></th>
+                                <th name="th_name" class="text-center"><span>NOMBRE</span></th>
+                                <th t-if="journal not in ['credit','nc_f']" name="th_doc" class="text-center"><span>DOCUMENTO</span></th>
+                                <th name="th_inv" class="text-center"><span>FACTURAS</span></th>
+                                <t t-foreach="datas[0]" t-as="j">
+                                    <th t-if="journal not in ['credit','nc_f']" t-att-name="j.id" class="text-right"><span t-esc="(j.name).upper()"/></th>
+                                </t>
+                                <th name="th_total" class="text-right"><span>TOTAL</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="datas[1]" t-as="line">
+                                <td><span t-esc="line['date']" t-options='{"widget": "date"}'/></td>
+                                <td><span t-esc="line['partner']"/></td>
+                                <td t-if="journal not in ['credit','nc_f']"><span t-esc="line['pay_number']"/></td>
+                                <td><span t-esc="line['doc_number']"/></td>
+                                <t t-foreach="datas[0]" t-as="j">
+                                    <td t-if="journal not in ['credit','nc_f']" class="text-right"><span t-esc="line.get(j.id, 0.0)"/></td>
+                                </t>
+                                <td class="text-right"><span t-esc="line['total']"/></td>
+                            </tr>
+                            <tr style="border-top:2px solid black !important; font-weight: 600 !important;" >
+                                <t t-set="col" t-value="4"/>
+                                <t t-if="journal == 'credit'">
+                                    <t t-set="col" t-value="3"/>
+                                </t>
+                                <td t-att-colspan="col">TOTAL</td>
+                                <t t-foreach="datas[0]" t-as="j">
+                                    <td t-if="journal not in ['credit','nc_f']" class="text-right"><span t-esc="datas[2].get(j.id, 0.0)"/></td>
+                                </t>
+                                <td class="text-right"><span t-esc="datas[4]"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </t>
+                <p style="page-break-after:always"></p>
+                <div class="row">
+                    <div class="col-6">
+                        <div style="border:2px solid black !important; padding:5px !important">
+                            <table class="table table-sm">
+                                <tr>
+                                    <td colspan="3">
+                                        <strong>TOTALES EN DOCUMENTOS</strong>
+                                    </td>
+                                </tr>
+                                <t t-foreach="journals" t-as="journal">
+                                    <t t-set='datas' t-value="journals.get(journal)"/>
+                                    <tr>
+                                        <td colspan="2">
+                                            <strong><span t-esc="datas[3]"/></strong>
+                                        </td>
+                                        <td class="text-right"><span t-esc="datas[4]"/></td>
+                                    </tr>
+                                    <t t-if="journal not in ['credit','nc_f']">
+                                        <tr t-foreach="datas[0]" t-as="j">
+                                            <td><b><span t-esc="(j.name).upper()"/></b></td>
+                                            <td class="text-right"><span t-esc="datas[2].get(j.id, 0.0)"/></td>
+                                            <td/>
+                                        </tr>
+                                    </t>
+                                </t>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <template id="report_payment_cash_end">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-set="lang" t-value="o.create_uid.partner_id.lang"/>
+                    <t t-call="account_payment_report.report_payment_cashend_document" t-lang="lang"/>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>
